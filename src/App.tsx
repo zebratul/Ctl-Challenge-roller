@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -21,7 +21,8 @@ import {
   Refresh, 
   Casino, 
   HelpOutline,
-  Language
+  Language,
+  Spa
 } from '@mui/icons-material';
 
 type OutcomeType = 'good' | 'bad' | 'retry';
@@ -90,10 +91,18 @@ const translations = {
 const theme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#90caf9' },
-    secondary: { main: '#f48fb1' },
-    background: { default: '#0a0a0a', paper: '#1e1e1e' },
+    primary: { main: '#4caf50' }, // Forest Green
+    secondary: { main: '#8bc34a' },
+    background: { 
+      default: '#0d1a0d', // Deep Forest Black/Green
+      paper: '#1a2e1a'    // Dark Moss Green
+    },
+    success: { main: '#a2ffaf' },
+    error: { main: '#ff8a80' },
+    warning: { main: '#fff59d' },
+    divider: 'rgba(76, 175, 80, 0.2)',
   },
+  shape: { borderRadius: 12 },
 });
 
 const generateTokens = (successes: number): Token[] => {
@@ -221,7 +230,6 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {/* Outer Wrapper: Centering everything */}
       <Box 
         sx={{ 
           minHeight: '100vh', 
@@ -233,32 +241,36 @@ export default function App() {
           p: 3
         }}
       >
-        {/* Main Application Container */}
         <Paper 
-          elevation={6}
+          elevation={12}
           sx={{
             width: '100%',
-            maxWidth: '1000px', // Forces 1000px limit
-            minWidth: { md: '1000px' }, // Ensures it stays wide on desktop
-            minHeight: '70vh',
+            maxWidth: '1000px',
+            minWidth: { md: '1000px' },
+            minHeight: '75vh',
             p: 6,
-            borderRadius: 4,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             bgcolor: 'background.paper',
+            border: '1px solid rgba(76, 175, 80, 0.3)',
             position: 'relative'
           }}
         >
           <Stack spacing={5} width="100%" maxWidth="700px">
-            {/* Header Section */}
+            {/* Header with Custom Icon */}
             <Stack spacing={2} alignItems="center">
-              <Typography variant="h2" fontWeight="900" textAlign="center" sx={{ letterSpacing: 2 }}>
+              <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Spa sx={{ fontSize: 80, color: 'primary.main', opacity: 0.8 }} />
+                {/* Visual "thorn ring" effect using a box shadow or overlay if needed */}
+              </Box>
+              <Typography variant="h2" fontWeight="900" textAlign="center" sx={{ color: 'primary.light' }}>
                 {txt.title}
               </Typography>
               <Chip 
                 label={isEnd ? txt.complete : `${txt.round} ${state.round + 1} / 3`} 
-                color={isEnd ? "success" : "primary"} 
+                color="primary"
+                variant="outlined"
                 sx={{ fontSize: '1.4rem', py: 3, px: 3, fontWeight: 'bold' }}
               />
             </Stack>
@@ -268,56 +280,47 @@ export default function App() {
               {state.history.map((res, i) => (
                 <Paper 
                   key={i} 
-                  variant="outlined"
                   sx={{ 
-                    width: 80, 
-                    height: 80, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
+                    width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    bgcolor: 'rgba(0,0,0,0.2)',
                     borderColor: (i === state.round && !isEnd) ? 'primary.main' : 'divider',
                     borderWidth: (i === state.round && !isEnd) ? 4 : 1,
-                    borderRadius: 3
+                    borderStyle: 'solid',
                   }}
                 >
                   {res ? (
                     <Box sx={{ transform: 'scale(1.5)' }}>{getIcon(res)}</Box>
                   ) : (
-                    <Typography variant="h5" color="text.secondary">{i + 1}</Typography>
+                    <Typography variant="h5" color="text.disabled">{i + 1}</Typography>
                   )}
                 </Paper>
               ))}
             </Stack>
 
-            {/* Game Content Area */}
             <Box flex={1}>
               {isInput ? (
                 <Fade in>
-                  <Paper variant="outlined" sx={{ p: 5, textAlign: 'center', borderStyle: 'dashed', borderRadius: 4 }}>
+                  <Paper sx={{ p: 5, textAlign: 'center', bgcolor: 'rgba(0,0,0,0.1)', border: '1px dashed #4caf50' }}>
                     <Casino sx={{ fontSize: 80, mb: 2, color: 'primary.main' }} />
                     <Typography variant="h4" gutterBottom fontWeight="bold">{txt.rollTitle}</Typography>
-                    <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-                      {txt.rollDesc}
-                    </Typography>
                     <TextField
                       type="number"
                       fullWidth
-                      variant="filled"
                       label={txt.successes}
                       value={state.successes}
                       onChange={(e) => {
                         const val = parseInt(e.target.value) || 0;
                         setState(p => ({ ...p, successes: Math.min(Math.max(val, 0), 3) }));
                       }}
-                      inputProps={{ min: 0, max: 3, style: { fontSize: '2rem', textAlign: 'center' } }}
-                      sx={{ mb: 4 }}
+                      sx={{ mb: 4, '& .MuiFilledInput-root': { bgcolor: 'background.default' } }}
+                      variant="filled"
                     />
                     <Button 
                       variant="contained" 
                       fullWidth 
                       size="large" 
                       onClick={handleStartRound}
-                      sx={{ py: 2, fontSize: '1.3rem', fontWeight: 'bold' }}
+                      sx={{ py: 2, fontSize: '1.3rem', bgcolor: 'primary.dark', '&:hover': { bgcolor: 'primary.main' } }}
                     >
                       {txt.reveal}
                     </Button>
@@ -325,101 +328,61 @@ export default function App() {
                 </Fade>
               ) : isEnd ? (
                 <Fade in>
-                  <Paper variant="outlined" sx={{ p: 8, textAlign: 'center', borderStyle: 'dashed', borderRadius: 4 }}>
+                  <Paper sx={{ p: 8, textAlign: 'center', bgcolor: 'rgba(0,0,0,0.2)' }}>
                     <Typography variant="h1" gutterBottom fontWeight="900" color={state.history.filter(h => h === 'good').length >= 2 ? 'success.main' : 'error.main'}>
                       {state.history.filter(h => h === 'good').length >= 2 ? txt.victory : txt.defeat}
                     </Typography>
-                    <Button variant="contained" size="large" onClick={handleReset} sx={{ mt: 4, px: 6, py: 2, fontSize: '1.2rem' }}>
+                    <Button variant="outlined" color="primary" size="large" onClick={handleReset} sx={{ mt: 4 }}>
                       {txt.newGame}
                     </Button>
                   </Paper>
                 </Fade>
               ) : (
                 <Stack spacing={2}>
-                  {/* Token List: No maxHeight or Overflow to ensure no scrollbar */}
-                  <Stack spacing={1.5}>
-                    {state.tokens.map((token) => {
-                      const isVisible = token.revealed || (state.peek && isPlaying);
-                      return (
-                        <Fade in key={token.id}>
-                          <Paper
-                            onClick={() => !isSummary && !token.revealed && handleTokenClick(token.id)}
-                            sx={{
-                              p: 3,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              cursor: (token.revealed || isSummary) ? 'default' : 'pointer',
-                              bgcolor: isVisible ? 'rgba(255,255,255,0.05)' : 'action.hover',
-                              borderColor: isVisible ? outcomeColors[token.type] : 'transparent',
-                              borderWidth: 2,
-                              borderStyle: 'solid',
-                              borderRadius: 3,
-                              transition: 'all 0.2s ease-in-out',
-                              '&:hover': {
-                                bgcolor: (!isVisible && !isSummary) ? 'action.selected' : undefined,
-                                transform: (!isVisible && !isSummary) ? 'translateY(-2px)' : undefined,
-                                boxShadow: (!isVisible && !isSummary) ? 4 : 0
-                              }
-                            }}
-                          >
-                            <Box display="flex" alignItems="center" gap={3}>
-                              {isVisible ? getIcon(token.type) : <HelpOutline color="disabled" sx={{ fontSize: 32 }} />}
-                              <Typography 
-                                variant="h5"
-                                sx={{ 
-                                  color: isVisible ? outcomeColors[token.type] : 'text.primary',
-                                  fontWeight: isVisible ? 'bold' : '500'
-                                }}
-                              >
-                                {isVisible ? txt[token.type] : txt.unknown}
-                              </Typography>
-                            </Box>
-                            {isVisible && (
-                              <Chip 
-                                label={txt[token.tier] || token.tier} 
-                                variant="filled"
-                                sx={{ fontWeight: 'bold' }}
-                                color={token.type === 'good' ? 'success' : token.type === 'bad' ? 'error' : 'warning'}
-                              />
-                            )}
-                          </Paper>
-                        </Fade>
-                      );
-                    })}
-                  </Stack>
+                  {state.tokens.map((token) => {
+                    const isVisible = token.revealed || (state.peek && isPlaying);
+                    return (
+                      <Fade in key={token.id}>
+                        <Paper
+                          onClick={() => !isSummary && !token.revealed && handleTokenClick(token.id)}
+                          sx={{
+                            p: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            cursor: (token.revealed || isSummary) ? 'default' : 'pointer',
+                            bgcolor: isVisible ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.2)',
+                            borderColor: isVisible ? outcomeColors[token.type] : 'rgba(76, 175, 80, 0.2)',
+                            borderWidth: 2, borderStyle: 'solid',
+                            '&:hover': { bgcolor: (!isVisible && !isSummary) ? 'rgba(76, 175, 80, 0.1)' : undefined }
+                          }}
+                        >
+                          <Box display="flex" alignItems="center" gap={3}>
+                            {isVisible ? getIcon(token.type) : <HelpOutline sx={{ color: 'rgba(76, 175, 80, 0.4)', fontSize: 32 }} />}
+                            <Typography variant="h5" sx={{ color: isVisible ? outcomeColors[token.type] : 'text.primary', fontWeight: isVisible ? 'bold' : '500' }}>
+                              {isVisible ? txt[token.type] : txt.unknown}
+                            </Typography>
+                          </Box>
+                          {isVisible && <Chip label={txt[token.tier]} variant="filled" color={token.type === 'good' ? 'success' : token.type === 'bad' ? 'error' : 'warning'} size="small" />}
+                        </Paper>
+                      </Fade>
+                    );
+                  })}
                   {isSummary && (
-                    <Fade in>
-                      <Button 
-                        variant="contained" 
-                        color="secondary" 
-                        size="large" 
-                        fullWidth 
-                        onClick={handleNextPhase}
-                        sx={{ py: 2.5, mt: 2, fontSize: '1.4rem', fontWeight: 'bold', boxShadow: 6 }}
-                      >
-                        {txt.continue}
-                      </Button>
-                    </Fade>
+                    <Button variant="contained" color="primary" size="large" fullWidth onClick={handleNextPhase} sx={{ py: 2.5, mt: 2, fontSize: '1.4rem' }}>
+                      {txt.continue}
+                    </Button>
                   )}
                 </Stack>
               )}
             </Box>
           </Stack>
-          
+
           {/* Language Selector */}
           <Box sx={{ mt: 6, alignSelf: 'flex-end' }}>
-             <FormControl size="small" variant="outlined" sx={{ minWidth: 140 }}>
-               <Select
-                 value={lang}
-                 onChange={(e) => setLang(e.target.value as Lang)}
-                 startAdornment={<Language sx={{ mr: 1 }} />}
-                 sx={{ borderRadius: 2, bgcolor: 'rgba(255,255,255,0.05)' }}
-               >
-                 <MenuItem value="en">English</MenuItem>
-                 <MenuItem value="ru">Русский</MenuItem>
-               </Select>
-             </FormControl>
+            <FormControl size="small" variant="outlined">
+              <Select value={lang} onChange={(e) => setLang(e.target.value as Lang)} startAdornment={<Language sx={{ mr: 1 }} />}>
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="ru">Русский</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
         </Paper>
       </Box>
