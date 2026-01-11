@@ -16,8 +16,8 @@ import {
   Tabs,
   Tab,
   IconButton,
-  TextField
-} from '@mui/material';
+  TextField,
+  } from '@mui/material';
 import { 
   CheckCircle, 
   Cancel, 
@@ -66,14 +66,14 @@ const translations = {
     round: 'ROUND',
     complete: 'COMPLETE',
     rollTitle: 'Roll Dice',
-    rollDesc: 'Enter the number of successes rolled (0-3)',
+    rollDesc: 'Enter success count (0-3)',
     successes: 'Successes',
     reveal: 'Reveal Board',
     victory: 'VICTORY',
     defeat: 'DEFEAT',
     newGame: 'New Game',
     continue: 'Continue',
-    unknown: 'UNKNOWN TOKEN',
+    unknown: 'UNKNOWN',
     basic: 'basic',
     advanced: 'advanced',
     hard: 'hard',
@@ -85,20 +85,20 @@ const translations = {
     stats: 'Stats',
     skills: 'Skills',
     bonuses: 'Bonuses',
-    totalDice: 'Total Dice Pool',
+    totalDice: 'Dice Pool',
     roll: 'ROLL DICE',
-    rollResults: 'Roll Results',
+    rollResults: 'Results',
     rollOutcome: 'Outcome',
     outcomeFail: 'Failure',
     outcomeSuccess: 'Success',
-    outcomeExceptional: 'Exceptional Success',
+    outcomeExceptional: 'Exceptional',
   },
   ru: {
     title: 'Проверка навыков',
     round: 'РАУНД',
     complete: 'ЗАВЕРШЕНО',
     rollTitle: 'Бросок кубиков',
-    rollDesc: 'Введите количество успехов (0-3)',
+    rollDesc: 'Введите успехи (0-3)',
     successes: 'Успехи',
     reveal: 'Открыть доску',
     victory: 'ПОБЕДА',
@@ -117,13 +117,13 @@ const translations = {
     stats: 'Характеристики',
     skills: 'Навыки',
     bonuses: 'Бонусы',
-    totalDice: 'Всего кубиков',
+    totalDice: 'Пул кубиков',
     roll: 'БРОСОК',
     rollResults: 'Результаты',
     rollOutcome: 'Итог',
     outcomeFail: 'Провал',
     outcomeSuccess: 'Успех',
-    outcomeExceptional: 'Исключительный успех',
+    outcomeExceptional: 'Исключительный',
   }
 };
 
@@ -145,13 +145,23 @@ const theme = createTheme({
   shape: { borderRadius: 12 },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h3: {
+      '@media (max-width:600px)': {
+        fontSize: '1.8rem', // Responsive title size
+      },
+    },
+    h2: {
+       '@media (max-width:600px)': {
+        fontSize: '2.5rem',
+      },
+    }
   },
   components: {
     MuiTab: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontSize: '1.1rem',
+          fontSize: '1rem',
           fontWeight: 'bold',
           color: 'rgba(255, 255, 255, 0.6)',
           '&.Mui-selected': { color: '#a2ffaf' },
@@ -209,7 +219,7 @@ const outcomeColors: Record<OutcomeType, string> = {
   retry: 'warning.main'
 };
 
-// --- Star Rating Component ---
+// --- Star Rating Component (Responsive) ---
 const StarRating = ({ 
   label, 
   value, 
@@ -222,11 +232,17 @@ const StarRating = ({
   const [hover, setHover] = useState<number | null>(null);
 
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-      <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.light', minWidth: 100 }}>
+    <Box 
+      display="flex" 
+      flexDirection={{ xs: 'column', sm: 'row' }} // Stack vertically on mobile
+      alignItems={{ xs: 'flex-start', sm: 'center' }} 
+      justifyContent="space-between" 
+      width="100%"
+    >
+      <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.light', minWidth: 100, mb: { xs: 1, sm: 0 } }}>
         {label}
       </Typography>
-      <Box display="flex" gap={0.5}>
+      <Box display="flex" gap={0.5} sx={{ alignSelf: { xs: 'flex-start', sm: 'auto' } }}>
         {[1, 2, 3, 4, 5].map((star) => (
           <IconButton
             key={star}
@@ -352,21 +368,53 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default', p: 3 }}>
-        <Paper elevation={12} sx={{ width: '100%', maxWidth: '1000px', minWidth: { md: '1000px' }, minHeight: '80vh', p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: 'background.paper', border: '1px solid rgba(76, 175, 80, 0.3)', position: 'relative' }}>
+      <Box 
+        sx={{ 
+          minHeight: '100vh', 
+          width: '100vw', 
+          display: 'flex', 
+          alignItems: { xs: 'flex-start', md: 'center' }, // Top align on mobile to prevent cut-off
+          justifyContent: 'center', 
+          bgcolor: 'background.default',
+          p: { xs: 1, md: 3 }, // Reduced padding on mobile
+          overflowX: 'hidden'
+        }}
+      >
+        <Paper 
+          elevation={12} 
+          sx={{ 
+            width: '100%', 
+            maxWidth: '800px', // Slightly reduced max width for better readability
+            minHeight: { xs: '95vh', md: '80vh' },
+            p: { xs: 2, sm: 4 }, // Responsive padding
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            bgcolor: 'background.paper', 
+            border: '1px solid rgba(76, 175, 80, 0.3)', 
+            position: 'relative' 
+          }}
+        >
           
           {/* Header */}
-          <Stack spacing={3} width="100%" alignItems="center" mb={4}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+          <Stack spacing={2} width="100%" alignItems="center" mb={3}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems="center" spacing={2} justifyContent="center">
                <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Spa sx={{ fontSize: 60, color: 'primary.main', opacity: 0.8 }} />
+                <Spa sx={{ fontSize: { xs: 45, md: 60 }, color: 'primary.main', opacity: 0.8 }} />
               </Box>
-              <Typography variant="h3" fontWeight="900" textAlign="center" sx={{ color: 'primary.light', letterSpacing: 1 }}>
+              <Typography variant="h3" fontWeight="900" textAlign="center" sx={{ color: 'primary.light', letterSpacing: 1, lineHeight: 1 }}>
                 {txt.title}
               </Typography>
             </Stack>
             
-            <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="primary" indicatorColor="primary" sx={{ borderBottom: 1, borderColor: 'divider', width: '100%', maxWidth: 600 }} variant="fullWidth">
+            <Tabs 
+              value={tab} 
+              onChange={(_, v) => setTab(v)} 
+              textColor="primary" 
+              indicatorColor="primary" 
+              sx={{ borderBottom: 1, borderColor: 'divider', width: '100%', maxWidth: 600 }} 
+              variant="fullWidth"
+            >
               <Tab label={txt.tabMinigame} value="minigame" />
               <Tab label={txt.tabDice} value="dice" />
             </Tabs>
@@ -375,21 +423,53 @@ export default function App() {
           {/* TAB: MINIGAME */}
           {tab === 'minigame' && (
             <Fade in key="minigame">
-              <Stack spacing={5} width="100%" maxWidth="700px" alignItems="center">
-                <Chip label={isEnd ? txt.complete : `${txt.round} ${gameState.round + 1} / 3`} color="primary" variant="outlined" sx={{ fontSize: '1.2rem', py: 2.5, px: 3, fontWeight: 'bold' }} />
-                <Stack direction="row" spacing={3} justifyContent="center">
+              <Stack spacing={4} width="100%" maxWidth="700px" alignItems="center" flex={1}>
+                
+                <Chip 
+                  label={isEnd ? txt.complete : `${txt.round} ${gameState.round + 1} / 3`} 
+                  color="primary" 
+                  variant="outlined" 
+                  sx={{ fontSize: '1.2rem', py: 2.5, px: 3, fontWeight: 'bold' }} 
+                />
+
+                {/* Responsive History Track */}
+                <Stack direction="row" spacing={{ xs: 1, sm: 3 }} justifyContent="center">
                   {gameState.history.map((res, i) => (
-                    <Paper key={i} sx={{ width: 70, height: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.2)', borderColor: (i === gameState.round && !isEnd) ? 'primary.main' : 'divider', borderWidth: (i === gameState.round && !isEnd) ? 4 : 1, borderStyle: 'solid', borderRadius: 3 }}>
+                    <Paper 
+                      key={i} 
+                      sx={{ 
+                        width: { xs: 60, sm: 70 }, // Smaller squares on mobile
+                        height: { xs: 60, sm: 70 }, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        bgcolor: 'rgba(0,0,0,0.2)', 
+                        borderColor: (i === gameState.round && !isEnd) ? 'primary.main' : 'divider', 
+                        borderWidth: (i === gameState.round && !isEnd) ? 4 : 1, 
+                        borderStyle: 'solid', 
+                        borderRadius: 3 
+                      }}
+                    >
                       {res ? <Box sx={{ transform: 'scale(1.5)' }}>{getIcon(res)}</Box> : <Typography variant="h5" color="text.disabled">{i + 1}</Typography>}
                     </Paper>
                   ))}
                 </Stack>
+
                 <Box width="100%">
                   {isInput ? (
-                    <Paper sx={{ p: 5, textAlign: 'center', bgcolor: 'rgba(0,0,0,0.1)', border: '1px dashed #4caf50' }}>
-                      <Casino sx={{ fontSize: 60, mb: 2, color: 'primary.main' }} />
+                    <Paper sx={{ p: { xs: 3, sm: 5 }, textAlign: 'center', bgcolor: 'rgba(0,0,0,0.1)', border: '1px dashed #4caf50' }}>
+                      <Casino sx={{ fontSize: { xs: 50, md: 60 }, mb: 2, color: 'primary.main' }} />
                       <Typography variant="h5" gutterBottom fontWeight="bold">{txt.rollTitle}</Typography>
-                      <TextField type="number" fullWidth label={txt.successes} value={gameState.successes} onChange={(e) => { const val = parseInt(e.target.value) || 0; setGameState(p => ({ ...p, successes: Math.min(Math.max(val, 0), 3) })); }} sx={{ mb: 4, mt: 2, '& .MuiFilledInput-root': { bgcolor: 'background.default' } }} variant="filled" inputProps={{ min: 0, max: 3 }} />
+                      <TextField 
+                        type="number" 
+                        fullWidth 
+                        label={txt.successes} 
+                        value={gameState.successes} 
+                        onChange={(e) => { const val = parseInt(e.target.value) || 0; setGameState(p => ({ ...p, successes: Math.min(Math.max(val, 0), 3) })); }} 
+                        sx={{ mb: 4, mt: 2, '& .MuiFilledInput-root': { bgcolor: 'background.default' } }} 
+                        variant="filled" 
+                        inputProps={{ min: 0, max: 3 }} 
+                      />
                       <Button variant="contained" fullWidth size="large" onClick={handleStartRound} sx={{ py: 1.5, fontSize: '1.1rem', bgcolor: 'primary.dark' }}>{txt.reveal}</Button>
                     </Paper>
                   ) : isEnd ? (
@@ -403,10 +483,25 @@ export default function App() {
                         const isVisible = token.revealed || (gameState.peek && isPlaying);
                         return (
                           <Fade in key={token.id}>
-                            <Paper onClick={() => !isSummary && !token.revealed && handleTokenClick(token.id)} sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: (token.revealed || isSummary) ? 'default' : 'pointer', bgcolor: isVisible ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.2)', borderColor: isVisible ? outcomeColors[token.type] : 'rgba(76, 175, 80, 0.2)', borderWidth: 2, borderStyle: 'solid', transition: 'all 0.2s', '&:hover': { bgcolor: (!isVisible && !isSummary) ? 'rgba(76, 175, 80, 0.1)' : undefined, transform: (!isVisible && !isSummary) ? 'translateY(-2px)' : undefined } }}>
-                              <Box display="flex" alignItems="center" gap={3}>
+                            <Paper 
+                              onClick={() => !isSummary && !token.revealed && handleTokenClick(token.id)} 
+                              sx={{ 
+                                p: { xs: 2, sm: 2.5 }, 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'space-between', 
+                                cursor: (token.revealed || isSummary) ? 'default' : 'pointer', 
+                                bgcolor: isVisible ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.2)', 
+                                borderColor: isVisible ? outcomeColors[token.type] : 'rgba(76, 175, 80, 0.2)', 
+                                borderWidth: 2, 
+                                borderStyle: 'solid', 
+                                transition: 'all 0.2s', 
+                                '&:hover': { bgcolor: (!isVisible && !isSummary) ? 'rgba(76, 175, 80, 0.1)' : undefined, transform: (!isVisible && !isSummary) ? 'translateY(-2px)' : undefined } 
+                              }}
+                            >
+                              <Box display="flex" alignItems="center" gap={{ xs: 1.5, sm: 3 }}>
                                 {isVisible ? getIcon(token.type) : <HelpOutline sx={{ color: 'rgba(76, 175, 80, 0.4)', fontSize: 32 }} />}
-                                <Typography variant="h6" sx={{ color: isVisible ? outcomeColors[token.type] : 'text.primary', fontWeight: isVisible ? 'bold' : '500' }}>{isVisible ? txt[token.type] : txt.unknown}</Typography>
+                                <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' }, color: isVisible ? outcomeColors[token.type] : 'text.primary', fontWeight: isVisible ? 'bold' : '500' }}>{isVisible ? txt[token.type] : txt.unknown}</Typography>
                               </Box>
                               {isVisible && <Chip label={txt[token.tier]} variant="filled" color={token.type === 'good' ? 'success' : token.type === 'bad' ? 'error' : 'warning'} size="small" />}
                             </Paper>
@@ -421,13 +516,13 @@ export default function App() {
             </Fade>
           )}
 
-          {/* TAB: DICE THROWER (Single Column Refactor) */}
+          {/* TAB: DICE THROWER */}
           {tab === 'dice' && (
             <Fade in key="dice">
-              <Stack spacing={4} width="100%" maxWidth="550px" alignItems="center">
+              <Stack spacing={4} width="100%" maxWidth="550px" alignItems="center" flex={1}>
                 
                 {/* Inputs Area */}
-                <Paper sx={{ p: 4, width: '100%', bgcolor: 'rgba(0,0,0,0.2)', borderRadius: 4, border: '1px solid rgba(76, 175, 80, 0.1)' }}>
+                <Paper sx={{ p: { xs: 2, sm: 4 }, width: '100%', bgcolor: 'rgba(0,0,0,0.2)', borderRadius: 4, border: '1px solid rgba(76, 175, 80, 0.1)' }}>
                   <Stack spacing={3}>
                     <StarRating label={txt.stats} value={diceState.stats} onChange={(val) => setDiceState(p => ({ ...p, stats: val }))} />
                     <StarRating label={txt.skills} value={diceState.skills} onChange={(val) => setDiceState(p => ({ ...p, skills: val }))} />
@@ -506,15 +601,21 @@ export default function App() {
             </Fade>
           )}
 
-          {/* Footer */}
-          <Box sx={{ position: 'absolute', bottom: 24, right: 32 }}>
+          {/* Footer: Lang Selector - Now in Flow, not Absolute */}
+          <Box sx={{ mt: 'auto', pt: 4, width: '100%', display: 'flex', justifyContent: 'center' }}>
             <FormControl size="small" variant="outlined">
-              <Select value={lang} onChange={(e) => setLang(e.target.value as Lang)} startAdornment={<Language sx={{ mr: 1 }} />} sx={{ bgcolor: 'rgba(0,0,0,0.3)', borderRadius: 2 }}>
+              <Select 
+                value={lang} 
+                onChange={(e) => setLang(e.target.value as Lang)} 
+                startAdornment={<Language sx={{ mr: 1 }} />} 
+                sx={{ bgcolor: 'rgba(0,0,0,0.3)', borderRadius: 2 }}
+              >
                 <MenuItem value="en">English</MenuItem>
                 <MenuItem value="ru">Русский</MenuItem>
               </Select>
             </FormControl>
           </Box>
+
         </Paper>
       </Box>
     </ThemeProvider>
